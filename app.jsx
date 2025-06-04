@@ -381,7 +381,7 @@ const AlphabetGameSimulator = () => {
 
     return (
         <div className="p-6 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 min-h-screen text-white">
-            <h6 className="text-right"><a>github</a></h6>
+            <h6 className="text-right"><a href="https://github.com/roclAknn/Universe-PinkBean-Sim" target="_blank">github</a></h6>
             <h2 className="text-3xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-300">宇宙スターピンクビーン</h2>
             <h2 className="text-3xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-300">シミュレーター</h2>
             {/* 設定パネル */}
