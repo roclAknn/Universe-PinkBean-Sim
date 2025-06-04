@@ -167,7 +167,6 @@ const AlphabetGameSimulator = () => {
 
         // クリアまでのパウダー必要数
         let requiredPowder = calcRequiredPowder();
-        console.log(requiredPowder);
 
         while (true) {
             tempDrawCount++;
@@ -216,7 +215,6 @@ const AlphabetGameSimulator = () => {
                         else if (alphabets.medium.includes(targetLetter)) foo = "medium";
                         else foo = "common";
                         requiredPowder -= powderCost[foo];
-                        console.log(requiredPowder);
                     }
                 }
             }
@@ -353,7 +351,6 @@ const AlphabetGameSimulator = () => {
     // ストップ機能
     const stopSimulation = () => {
         setGameState(refGameState.current = 'stopped');
-        console.log(refGameState.current);
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
         }
