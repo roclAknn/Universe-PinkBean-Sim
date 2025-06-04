@@ -14,7 +14,7 @@ const AlphabetGameSimulator = () => {
     const [synthesisCount, setSynthesisCount] = useState(0);
     const [powder, setPowder] = useState(0);
     const [animationSpeed, setAnimationSpeed] = useState(refAnimationSpeed.current);
-    const [advancedProbability, setAdvancedProbability] = useState(2.0);
+    const [advancedProbability, setAdvancedProbability] = useState(1.0);
     const [selectedWords, setSelectedWords] = useState([true, true, true, true, true]); // どの単語を収集するか
 
 
