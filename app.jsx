@@ -577,8 +577,9 @@ const AlphabetGameSimulator = () => {
                                     const synthOptTxt = synthesisOptions.map((option, index) => {
                                         return ["上", "中", "下"][index] + (option ? "◯" : "✕");
                                     }).join(" ");
-                                    const tweetText = `通常箱 ${drawCount}個でクリアしました！\n上級箱: ${advancedDrawCount}個 [${advancedProbability} %]\n合成回数: ${synthesisCount}回 [${synthOptTxt}]\nパウダー: ${powder.toLocaleString()}\n対象単語: ${wordCount}\n#宇宙スターピンクビーンシミュレータ`;
-                                    const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+                                    const pageUrl = "https://roclaknn.github.io/Universe-PinkBean-Sim/".split('#')[0];
+                                    const tweetText = `通常箱 ${drawCount}個でクリアしました！\n上級箱: ${advancedDrawCount}個 [${advancedProbability} %]\n合成回数: ${synthesisCount}回 [${synthOptTxt}]\nパウダー: ${powder.toLocaleString()}\n対象単語: ${wordCount}\n#宇宙スターピンクビーンシミュレータ\n${pageUrl}`;
+                                    const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
                                     window.open(tweetUrl, '_blank');
                                 }}
                                 className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-4 py-2 rounded-lg font-bold text-white shadow-lg transition-all duration-200 flex items-center gap-2"
