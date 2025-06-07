@@ -414,10 +414,11 @@ const AlphabetGameSimulator = () => {
     // 自動スクロールの登録
     const resultRef = useRef(null);
     const gameboardRef = useRef(null);
+    const controlRef = useRef(null);
     useEffect(() => {
         let target = null;
-        if (gameState === 'completed' && resultRef.current !== null) {
-            target = resultRef.current;
+        if (gameState === 'completed' && controlRef.current !== null) {
+            target = controlRef.current;
         }
         if (gameState === 'running' && gameboardRef.current !== null) {
             target = gameboardRef.current;
@@ -540,7 +541,7 @@ const AlphabetGameSimulator = () => {
             </div>
 
             {/* コントロールボタン */}
-            <div className="flex justify-center space-x-4 mb-6">
+            <div ref={controlRef} className="flex justify-center space-x-4 mb-6">
                 <button
                     onClick={runSimulation}
                     disabled={gameState === 'running'}
@@ -564,8 +565,6 @@ const AlphabetGameSimulator = () => {
             </div>
 
             {/* 結果表示 */}
-            {/* <div id="resultboard" className={`${gameState !== 'completed' ? 'h-0 invisible' : 'p-4 mb-6'} bg-gradient-to-r from-green-600/80 to-emerald-600/80 backdrop-blur-sm border border-green-400/30 rounded-lg`}　> */}
-            
             {gameState === 'completed' && (
                 <div ref={resultRef} className="bg-gradient-to-r from-green-600/80 to-emerald-600/80 backdrop-blur-sm border border-green-400/30 rounded-lg p-4 mb-6">
 
