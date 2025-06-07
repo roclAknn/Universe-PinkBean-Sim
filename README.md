@@ -7,3 +7,5 @@ GitHub Pages -> https://roclaknn.github.io/Universe-PinkBean-Sim/<br><br>
 通常箱　中4.5365%  下95.4635%<br>
 合成 上0.8%、中4.5%、下94.7%<br>
 上級箱のドロップ率は不明（任意設定）<br>
+<br>
+パウダー上限とサンデーメイプルを考慮しません
