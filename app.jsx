@@ -15,6 +15,7 @@ const AlphabetGameSimulator = () => {
     const [powder, setPowder] = useState(0);
     const [animationSpeed, setAnimationSpeed] = useState(refAnimationSpeed.current);
     const [advancedProbability, setAdvancedProbability] = useState(1.0);
+    const [synthesisOptions, setSynthesisOptions] = useState([true, true, true]); // どのアルファベットを合成に使用するか
     const [selectedWords, setSelectedWords] = useState([true, true, true, true, true]); // どの単語を収集するか
 
 
@@ -37,6 +38,12 @@ const AlphabetGameSimulator = () => {
     // アルファベット選択作成必要数
     const powderCost = { rare: 5000, medium: 1500, common: 100 };
 
+    // 合成素材に使う設定の選択肢
+    const synthesisOptionLabels = [
+        { label: 'レア度 上', value: 'rare' },
+        { label: 'レア度 中', value: 'medium' },
+        { label: 'レア度 下', value: 'common' }
+    ];
 
     // 現在の配置状況
     const [currentPlacement, setCurrentPlacement] = useState(
@@ -141,6 +148,7 @@ const AlphabetGameSimulator = () => {
     // シミュレーション実行
     const runSimulation = () => {
         setGameState(refGameState.current = 'running');
+
         setDrawCount(0);
         setAdvancedDrawCount(0);
         setSynthesisCount(0);
@@ -153,6 +161,12 @@ const AlphabetGameSimulator = () => {
             initialInventory[letter] = 0;
         });
         setInventory(initialInventory);
+
+        // 合成素材に使用するオプションをレア度→文字ごとの配列に変更
+        const synthesizableLetters = {};
+        alphabets.rare.forEach(letter => { synthesizableLetters[letter] = synthesisOptions[0] });
+        alphabets.medium.forEach(letter => { synthesizableLetters[letter] = synthesisOptions[1] });
+        alphabets.common.forEach(letter => { synthesizableLetters[letter] = synthesisOptions[2] });
 
         setAnimationLog([]);
         setCurrentLogIndex(0);
@@ -199,56 +213,63 @@ const AlphabetGameSimulator = () => {
             }
 
             // 配置
-            const beforePlacement = JSON.stringify(tempPlacement);
-            for (let wordIndex = 0; wordIndex < targetWords.length; wordIndex++) {
-                if (!selectedWords[wordIndex]) continue; // 選択されていない単語はスキップ
+            doPlacement();
+            if (tempPowder >= requiredPowder) break;
+            function doPlacement() {
+                const beforePlacement = JSON.stringify(tempPlacement);
+                for (let wordIndex = 0; wordIndex < targetWords.length; wordIndex++) {
+                    if (!selectedWords[wordIndex]) continue; // 選択されていない単語はスキップ
 
-                for (let letterIndex = 0; letterIndex < targetWords[wordIndex].length; letterIndex++) {
-                    const targetLetter = targetWords[wordIndex][letterIndex];
-                    if (!tempPlacement[wordIndex][letterIndex] && tempInventory[targetLetter] > 0) {
-                        tempPlacement[wordIndex][letterIndex] = targetLetter;
-                        tempInventory[targetLetter]--;
+                    for (let letterIndex = 0; letterIndex < targetWords[wordIndex].length; letterIndex++) {
+                        const targetLetter = targetWords[wordIndex][letterIndex];
+                        if (!tempPlacement[wordIndex][letterIndex] && tempInventory[targetLetter] > 0) {
+                            tempPlacement[wordIndex][letterIndex] = targetLetter;
+                            tempInventory[targetLetter]--;
 
-                        // パウダー必要数の減算
-                        let foo = "";
-                        if (alphabets.rare.includes(targetLetter)) foo = "rare";
-                        else if (alphabets.medium.includes(targetLetter)) foo = "medium";
-                        else foo = "common";
-                        requiredPowder -= powderCost[foo];
+                            // パウダー必要数の減算
+                            let foo = "";
+                            if (alphabets.rare.includes(targetLetter)) foo = "rare";
+                            else if (alphabets.medium.includes(targetLetter)) foo = "medium";
+                            else foo = "common";
+                            requiredPowder -= powderCost[foo];
+                        }
                     }
+                }
+
+                if (JSON.stringify(tempPlacement) !== beforePlacement) {
+                    log.push({
+                        type: 'placement',
+                        placement: JSON.parse(JSON.stringify(tempPlacement)),
+                        inventory: { ...tempInventory }
+                    });
+                }
+
+                // クリア判定
+                //const gameComplete = tempPlacement.every((word, index) =>
+                //    selectedWords[index] ? word.every(letter => letter !== null) : true
+                //);
+
+                // パウダー必要数が所持数未満ならクリア
+                if (tempPowder >= requiredPowder) {
+                    log.push({
+                        type: 'complete',
+                        drawCount: tempDrawCount,
+                        advancedDrawCount: tempAdvancedDrawCount,
+                        synthesisCount: tempSynthesisCount,
+                        powder: tempPowder
+                    });
                 }
             }
 
-            if (JSON.stringify(tempPlacement) !== beforePlacement) {
-                log.push({
-                    type: 'placement',
-                    placement: JSON.parse(JSON.stringify(tempPlacement)),
-                    inventory: { ...tempInventory }
-                });
-            }
-
-            // クリア判定
-            //const gameComplete = tempPlacement.every((word, index) =>
-            //    selectedWords[index] ? word.every(letter => letter !== null) : true
-            //);
-
-            // パウダー必要数が所持数未満ならクリア
-            const gameComplete = (tempPowder >= requiredPowder); 
-
-            if (gameComplete) {
-                log.push({
-                    type: 'complete',
-                    drawCount: tempDrawCount,
-                    advancedDrawCount: tempAdvancedDrawCount,
-                    synthesisCount: tempSynthesisCount,
-                    powder: tempPowder
-                });
-                break;
-            }
-
             // 合成判定
+            // 所持アルファベットの数（5以上必要）
             const totalCount = Object.values(tempInventory).reduce((sum, count) => sum + count, 0);
-            if (totalCount >= 5) {
+            // 合成素材に使用する設定のアルファベットの数（1以上必要）
+            const synthesizableCount = Object.keys(tempInventory)
+                .filter(letter => synthesizableLetters[letter])
+                .reduce((sum, letter) => sum + tempInventory[letter], 0);
+
+            if (totalCount >= 5 && synthesizableCount >= 1) {
                 tempSynthesisCount++;
 
                 // 合成実行
@@ -258,11 +279,16 @@ const AlphabetGameSimulator = () => {
 
                 // アルファベット削除し取得パウダーを計算
                 const allLetters = Object.keys(tempInventory);
+                let isFirstSynthesis = true;
                 for (const letter of allLetters) {
+                    // 1つ目の合成素材は合成可能設定の素材に限定する
+                    if (isFirstSynthesis && !synthesizableLetters[letter]) continue;
+                    isFirstSynthesis = false;
+
                     while (tempInventory[letter] > 0 && itemsToRemove > 0) {
                         tempInventory[letter]--;
                         if (alphabets.rare.includes(letter)) {
-                            powderGain += 255;
+                            powderGain += 250;
                         } else if (alphabets.medium.includes(letter)) {
                             powderGain += 75;
                         } else {
@@ -287,6 +313,10 @@ const AlphabetGameSimulator = () => {
                     totalPowder: tempPowder,
                     inventory: { ...tempInventory }
                 });
+
+                // 新しく獲得したアルファベット・パウダーで配置・クリア判定
+                doPlacement();
+                if (tempPowder >= requiredPowder) break;
             }
         }
 
@@ -332,6 +362,7 @@ const AlphabetGameSimulator = () => {
                     break;
                 case 'complete':
                     setGameState(refGameState.current = 'completed');
+                    // リザルトボードへスクロール
                     break;
             }
 
@@ -339,7 +370,11 @@ const AlphabetGameSimulator = () => {
             index++;
 
             if (index < log.length) {
-                timeoutId = setTimeout(animate, refAnimationSpeed.current);
+                if(refAnimationSpeed.current < 1) {;
+                    animate();
+                } else {
+                    timeoutId = setTimeout(animate, refAnimationSpeed.current);
+                }
             } else {
                 setGameState(refGameState.current = 'completed');
             }
@@ -376,6 +411,22 @@ const AlphabetGameSimulator = () => {
         setCurrentLogIndex(0);
     };
 
+    // 自動スクロールの登録
+    const resultRef = useRef(null);
+    const gameboardRef = useRef(null);
+    useEffect(() => {
+        let target = null;
+        if (gameState === 'completed' && resultRef.current !== null) {
+            target = resultRef.current;
+        }
+        if (gameState === 'running' && gameboardRef.current !== null) {
+            target = gameboardRef.current;
+        }
+        if (target !== null) {
+            target.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [gameState]);
+
     return (
         <div className="p-6 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 min-h-screen text-white">
             <h6 className="text-right"><a href="https://github.com/roclAknn/Universe-PinkBean-Sim" target="_blank">github</a></h6>
@@ -387,7 +438,7 @@ const AlphabetGameSimulator = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-medium mb-2">
-                            アニメーション速度 (ms)
+                            アニメーション速度 (ms)<span className="brightness-75"> …途中で変更可</span>
                         </label>
                         <div className="flex gap-2">
                             <input
@@ -398,9 +449,10 @@ const AlphabetGameSimulator = () => {
                                 onChange={(e) => setAnimationSpeed(refAnimationSpeed.current = Number(e.target.value))}
                                 className="flex-1"
                             />
+                            {/* min=0に　即終了用 ゲージ側は最小1に */}
                             <input
                                 type="number"
-                                min="1"
+                                min="0"
                                 max="1000"
                                 value={animationSpeed}
                                 onChange={(e) => setAnimationSpeed(refAnimationSpeed.current = Number(e.target.value))}
@@ -434,6 +486,32 @@ const AlphabetGameSimulator = () => {
                                 disabled={gameState === 'running'}
                             />
                         </div>
+                    </div>
+                </div>
+
+                {/* 合成素材選択 */}
+                <div className="mt-4">
+                    <label className="block text-sm font-medium mb-2">
+                        余分を合成に使うレア度を選択
+                        <span className="brightness-75"> …１つ以上を含んで合成する</span>
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                        {synthesisOptionLabels.map((option, index) => (
+                            <label key={index} className="flex items-center space-x-2 bg-black/20 p-2 rounded">
+                                <input
+                                    type="checkbox"
+                                    checked={synthesisOptions[index]}
+                                    onChange={(e) => {
+                                        const newSelected = [...synthesisOptions];
+                                        newSelected[index] = e.target.checked;
+                                        setSynthesisOptions(newSelected);
+                                    }}
+                                    disabled={gameState === 'running'}
+                                    className="w-4 h-4"
+                                />
+                                <span className="text-sm">{option.label}</span>
+                            </label>
+                        ))}
                     </div>
                 </div>
 
@@ -486,14 +564,37 @@ const AlphabetGameSimulator = () => {
             </div>
 
             {/* 結果表示 */}
+            {/* <div id="resultboard" className={`${gameState !== 'completed' ? 'h-0 invisible' : 'p-4 mb-6'} bg-gradient-to-r from-green-600/80 to-emerald-600/80 backdrop-blur-sm border border-green-400/30 rounded-lg`}　> */}
+            
             {gameState === 'completed' && (
-                <div className="bg-gradient-to-r from-green-600/80 to-emerald-600/80 backdrop-blur-sm border border-green-400/30 rounded-lg p-4 mb-6">
-                    <h2 className="text-xl font-bold mb-2">コンプリート！</h2>
+                <div ref={resultRef} className="bg-gradient-to-r from-green-600/80 to-emerald-600/80 backdrop-blur-sm border border-green-400/30 rounded-lg p-4 mb-6">
+
+                    <div className="flex w-full mb-2">
+                        <div className="flex-1 p-2 text-xl font-bold">コンプリート！</div>
+                        <div className="p-2 whitespace-nowrap">
+                            <button
+                                onClick={() => {
+                                    const wordCount = `${selectedWords.filter(Boolean).length} / ${selectedWords.length}`;
+                                    const synthOptTxt = synthesisOptions.map((option, index) => {
+                                        return ["上", "中", "下"][index] + (option ? "◯" : "✕");
+                                    }).join(" ");
+                                    const tweetText = `通常箱 ${drawCount}個でクリアしました！\n上級箱: ${advancedDrawCount}個 [${advancedProbability} %]\n合成回数: ${synthesisCount}回 [${synthOptTxt}]\nパウダー: ${powder.toLocaleString()}\n対象単語: ${wordCount}\n#宇宙スターピンクビーンシミュレータ`;
+                                    const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+                                    window.open(tweetUrl, '_blank');
+                                }}
+                                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-4 py-2 rounded-lg font-bold text-white shadow-lg transition-all duration-200 flex items-center gap-2"
+                            >
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                     <p className="text-lg">
-                        {drawCount}箱でクリアしました！
+                        通常箱 {drawCount}個でクリアしました！
                     </p>
                     <p className="text-sm mt-2">
-                        上級箱: {advancedDrawCount}回 | 合成: {synthesisCount}回 | パウダー: {powder.toLocaleString()}
+                        上級箱: {advancedDrawCount}個 | 合成: {synthesisCount}回 | パウダー: {powder.toLocaleString()}
                     </p>
                 </div>
             )}
@@ -520,26 +621,28 @@ const AlphabetGameSimulator = () => {
             </div>
 
             {/* ゲームボード */}
-            <div className="bg-black/30 backdrop-blur-sm border border-white/20 rounded-lg p-4 mb-6">
+            <div ref={gameboardRef} className="bg-black/30 backdrop-blur-sm border border-white/20 rounded-lg p-4 mb-6">
                 <h2 className="text-xl font-bold mb-4 text-purple-300">ゲームボード</h2>
                 <div className="space-y-4 text-center">
-                    {currentPlacement.map((word, wordIndex) => (
-                        <div key={wordIndex} className={` mx-auto w-[calc(8*42px)] grid justify-center gap-2 grid-cols-8`}>
-                            {word.map((letter, letterIndex) => {
-                                const targetLetter = targetWords[wordIndex][letterIndex];
-                                return (
-                                    <div
-                                        key={letterIndex}
-                                        className={`w-10 h-12 border-2 rounded flex items-center justify-center text-xl font-bold transition-all duration-300 
+                    {currentPlacement.map((word, wordIndex) =>
+                        selectedWords[wordIndex] && (
+                            <div key={wordIndex} className={` mx-auto w-[calc(8*42px)] grid justify-center gap-2 grid-cols-8`}>
+                                {word.map((letter, letterIndex) => {
+                                    const targetLetter = targetWords[wordIndex][letterIndex];
+                                    return (
+                                        <div
+                                            key={letterIndex}
+                                            className={`w-10 h-12 border-2 rounded flex items-center justify-center text-xl font-bold transition-all duration-300 
                                         ${getRarityColor(targetLetter)} text-white shadow-lg 
                                         ${letter ? "" : "brightness-50"}`}
-                                    >
-                                        {letter || targetLetter}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    ))}
+                                        >
+                                            {letter || targetLetter}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )
+                    )}
                 </div>
             </div>
 
