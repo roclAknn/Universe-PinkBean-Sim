@@ -448,7 +448,7 @@ const AlphabetGameSimulator = () => {
     return (
         <div className="p-6 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 min-h-screen text-white">
             <h6 className="text-right"><a href="https://github.com/roclAknn/Universe-PinkBean-Sim" target="_blank">github</a></h6>
-            <h2 className="text-3xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-300">宇宙スターピンクビーン</h2>
+            <h2 className="text-3xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-300">ロックスター石の精霊！</h2>
             <h2 className="text-3xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-300">シミュレーター</h2>
             {/* 設定パネル */}
             <div className="bg-black/30 backdrop-blur-sm border border-white/20 rounded-lg p-4 mb-6">
@@ -685,4 +685,5 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
 
