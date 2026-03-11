@@ -605,7 +605,7 @@ const AlphabetGameSimulator = () => {
                                         return ["上", "中", "下"][index] + (option ? "◯" : "✕");
                                     }).join(" ");
                                     const pageUrl = "https://roclaknn.github.io/Universe-PinkBean-Sim/".split('#')[0];
-                                    const tweetText = `通常箱 ${drawCount}個でクリアしました！\n上級箱: ${advancedDrawCount}個 [${advancedProbability} %]\n合成回数: ${synthesisCount}回 [${synthOptTxt}]\nパウダー: ${powder.toLocaleString()} |上級: ${advancedPowder.toLocaleString()}\n対象単語: ${wordCount}\n#ロックスター石の精霊\n${pageUrl}`;
+                                    const tweetText = `通常箱 ${drawCount}個でクリアしました！\n上級箱: ${advancedDrawCount}個 [${advancedProbability} %]\n合成回数: ${synthesisCount}回 [${synthOptTxt}]\nパウダー: ${powder.toLocaleString()} | 上級: ${advancedPowder.toLocaleString()}\n対象単語: ${wordCount}\n#ロックスター石の精霊\n${pageUrl}`;
                                     const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
                                     window.open(tweetUrl, '_blank');
                                 }}
@@ -653,20 +653,30 @@ const AlphabetGameSimulator = () => {
                 <div className="space-y-4 text-center">
                     {currentPlacement.map((word, wordIndex) =>
                         selectedWords[wordIndex] && (
-                            <div key={wordIndex} className={` mx-auto w-[calc(8*42px)] grid justify-center gap-2 grid-cols-8`}>
-                                {word.map((letter, letterIndex) => {
-                                    const targetLetter = targetWords[wordIndex][letterIndex];
-                                    return (
-                                        <div
-                                            key={letterIndex}
-                                            className={`w-10 h-12 border-2 rounded flex items-center justify-center text-xl font-bold transition-all duration-300 
-                                        ${getRarityColor(targetLetter)} text-white shadow-lg 
-                                        ${letter ? "" : "brightness-50"}`}
-                                        >
-                                            {letter || targetLetter}
-                                        </div>
-                                    );
-                                })}
+                            <div key={wordIndex} className={` mx-auto w-[calc(8*42px)] grid justify-center gap-2`}>
+                            {
+                                let _sum = 0;
+                                const splitnums = wordNames[wordIndex].split("/").map( w => (sum += w.length) );
+                                splitnums.map( (num, sectionIndex) => {
+                                    return (<div key={sectionIndex} className={`flex flex-nowrap justify-center gap-2`} >
+                                    {
+                                        const start = sectionIndex <= 0 ? 0 : splitnums[sectionIndex];
+                                        word.slice(start, start + num).map( (letter, letterIndex)=>{
+                                            const targetLetter = targetWords[wordIndex][letterIndex];
+                                            return (
+                                                <div
+                                                    key={letterIndex}
+                                                    className={
+                                                        `w-10 h-12 border-2 rounded flex items-center justify-center text-xl font-bold transition-all duration-300 
+                                                            ${getRarityColor(targetLetter)} text-white shadow-lg ${letter ? "" : "brightness-50"}
+                                                        `}
+                                                >{letter || targetLetter}</div>
+                                            );
+                                        })
+                                    }
+                                    </div>);
+                                });
+                            }
                             </div>
                         )
                     )}
@@ -695,6 +705,7 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
 
 
 
