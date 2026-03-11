@@ -656,7 +656,7 @@ const AlphabetGameSimulator = () => {
                             <div key={wordIndex} className={` mx-auto w-[calc(8*42px)] grid justify-center gap-2`}>
                             {
                                 let _sum = 0;
-                                const splitnums = wordNames[wordIndex].replace(" ", "").split("/").map( w => (sum += w.length) );
+                                const splitnums = wordNames[wordIndex].replace(" ", "").split("/").map( w => (_sum += w.length) );
                                 splitnums.map( (num, sectionIndex) => {
                                     return (<div key={sectionIndex} className={`flex flex-nowrap justify-center gap-2`} >
                                     {
@@ -705,6 +705,7 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
 
 
 
