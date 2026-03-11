@@ -87,7 +87,7 @@ const AlphabetGameSimulator = () => {
     const commonProb = 5.7152 / 100 * alphabets.common.length; // 誤差は無視できるので等しいとみなす
     const mediumProb = 0.4983 / 100 * alphabets.medium.length;
     const drawAlphabet = (isAdvanced = false) => {
-        const rand = Math.random();
+        let rand = Math.random();
         let selectedAlphabet, rarity;
         if (isAdvanced) {
             // 上級抽選：レア度上のみ
@@ -116,7 +116,7 @@ const AlphabetGameSimulator = () => {
     const commonSynthProb = 5.7152 / 100 * alphabets.common.length;
     const mediumSynthProb = 0.4983 / 100 * alphabets.medium.length;
     const synthesize = () => {
-        const rand = Math.random();
+        let rand = Math.random();
         let selectedAlphabet, rarity;
 
         if ( (rand -= commonProb) <= 0 ) {
@@ -698,6 +698,7 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
 
 
 
