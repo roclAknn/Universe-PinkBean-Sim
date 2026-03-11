@@ -115,10 +115,10 @@ const AlphabetGameSimulator = () => {
         let rand = Math.random();
         let selectedAlphabet, rarity;
 
-        if ( (rand -= commonProb) <= 0 ) {
+        if ( (rand -= commonSynthProb) <= 0 ) {
             // レア度下
             rarity = 'common';
-        } else if ( (rand -= mediumProb) <= 0 ) {
+        } else if ( (rand -= mediumSynthProb) <= 0 ) {
             // レア度中
             rarity = 'medium';
         } else {
@@ -695,6 +695,7 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
 
 
 
