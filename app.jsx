@@ -646,43 +646,64 @@ const AlphabetGameSimulator = () => {
                     </div>
                 </div>
             </div>
-
+            
             {/* ゲームボード */}
-            <div ref={gameboardRef} className="bg-black/30 backdrop-blur-sm border border-white/20 rounded-lg p-4 mb-6">
-                <h2 className="text-xl font-bold mb-4 text-purple-300">ゲームボード</h2>
-                <div className="space-y-4 text-center">
-                    {currentPlacement.map((word, wordIndex) =>
-                        selectedWords[wordIndex] && (
-                            <div key={wordIndex} className={` mx-auto w-[calc(8*42px)] grid justify-center gap-2`}>
-                            {(()=>{
-                                let _sum = 0;
-                                const splitnums = wordNames[wordIndex].replace(" ", "").split("/").map( w => (_sum += w.length) );
-                                return splitnums.map( (num, sectionIndex) => {
-                                    return (<div key={sectionIndex} className={`flex flex-nowrap justify-center gap-2`} >
-                                    {(()=>{
-                                        const start = sectionIndex <= 0 ? 0 : splitnums[sectionIndex-1];
-                                        return word.slice(start, num).map( (letter, letterIndex)=>{
-                                            letterIndex += start;
-                                            const targetLetter = targetWords[wordIndex][letterIndex];
-                                            return (
-                                                <div
-                                                    key={letterIndex}
-                                                    className={
-                                                        `w-10 h-12 border-2 rounded flex items-center justify-center text-xl font-bold transition-all duration-300 
-                                                            ${getRarityColor(targetLetter)} text-white shadow-lg ${letter ? "" : "brightness-50"}
-                                                        `}
-                                                >{letter || targetLetter}</div>
-                                            );
-                                        })
-                                    })()}
-                                    </div>);
-                                        
-                                });
-                            })()}
-                            </div>
-                        )
-                    )}
-                </div>
+            <div
+              ref={gameboardRef}
+              className="bg-black/30 backdrop-blur-sm border border-white/20 rounded-lg p-4 mb-6"
+            >
+              <h2 className="text-xl font-bold mb-4 text-purple-300">ゲームボード</h2>
+            
+              <div className="space-y-4 text-center">
+                {currentPlacement.map((word, wordIndex) => {
+                  if (!selectedWords[wordIndex]) return null;
+            
+                  const sections = wordNames[wordIndex].replace(" ", "").split("/");
+            
+                  let start = 0;
+            
+                  return (
+                    <div
+                      key={wordIndex}
+                      className="mx-auto w-[calc(8*42px)] grid justify-center gap-2"
+                    >
+                      {sections.map((section, sectionIndex) => {
+                        const end = start + section.length;
+                        const letters = word.slice(start, end);
+            
+                        const row = (
+                          <div
+                            key={sectionIndex}
+                            className="flex flex-nowrap justify-center gap-2"
+                          >
+                            {letters.map((letter, i) => {
+                              const letterIndex = start + i;
+                              const targetLetter = targetWords[wordIndex][letterIndex];
+            
+                              return (
+                                <div
+                                  key={letterIndex}
+                                  className={`
+                                    w-10 h-12 border-2 rounded flex items-center justify-center
+                                    text-xl font-bold transition-all duration-300
+                                    ${getRarityColor(targetLetter)} text-white shadow-lg
+                                    ${letter ? "" : "brightness-50"}
+                                  `}
+                                >
+                                  {letter || targetLetter}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+            
+                        start = end;
+                        return row;
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {/* インベントリ */}
@@ -707,6 +728,7 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
 
 
 
