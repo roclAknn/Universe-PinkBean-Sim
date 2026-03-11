@@ -13,6 +13,7 @@ const AlphabetGameSimulator = () => {
     const [advancedDrawCount, setAdvancedDrawCount] = useState(0);
     const [synthesisCount, setSynthesisCount] = useState(0);
     const [powder, setPowder] = useState(0);
+    const [advancedPowder, setAdvancedPowder] = useState(0);
     const [animationSpeed, setAnimationSpeed] = useState(refAnimationSpeed.current);
     const [advancedProbability, setAdvancedProbability] = useState(1.0);
     const [synthesisOptions, setSynthesisOptions] = useState([true, true, true]); // どのアルファベットを合成に使用するか
@@ -53,7 +54,7 @@ const AlphabetGameSimulator = () => {
     const targetWords = wordNames.map(word => word.replace(/[^A-Z]/g, "").split(""));
 
     // アルファベット選択作成必要数
-    const powderCost = { rare: 5000, medium: 1500, common: 100 };
+    const powderCost = { rare: 2000, medium: 3000, common: 500 };
 
     // 合成素材に使う設定の選択肢
     const synthesisOptionLabels = [
@@ -112,26 +113,24 @@ const AlphabetGameSimulator = () => {
     };
 
     // 合成抽選
+    const commonSynthProb = 5.7152 / 100 * alphabets.common.length;
+    const mediumSynthProb = 0.4983 / 100 * alphabets.medium.length;
     const synthesize = () => {
         const rand = Math.random();
         let selectedAlphabet, rarity;
 
-        if (rand < 0.947) {
-            // レア度下 94.7%
-            const commonAlphabets = alphabets.common;
-            selectedAlphabet = commonAlphabets[Math.floor(Math.random() * commonAlphabets.length)];
+        if ( (rand -= commonProb) <= 0 ) {
+            // レア度下
             rarity = 'common';
-        } else if (rand < 0.992) {
-            // レア度中 4.5%
-            const mediumAlphabets = alphabets.medium;
-            selectedAlphabet = mediumAlphabets[Math.floor(Math.random() * mediumAlphabets.length)];
+        } else if ( (rand -= mediumProb) <= 0 ) {
+            // レア度中
             rarity = 'medium';
         } else {
-            // レア度上 0.8%
-            const rareAlphabets = alphabets.rare;
-            selectedAlphabet = rareAlphabets[Math.floor(Math.random() * rareAlphabets.length)];
+            // レア度上
             rarity = 'rare';
         }
+        const array = alphabets[rarity];
+        selectedAlphabet = array[Math.floor(Math.random() * array.length)];
 
         return { alphabet: selectedAlphabet, rarity };
     };
@@ -149,10 +148,11 @@ const AlphabetGameSimulator = () => {
                 else letters.common++;
             }
         }
-        return Object.keys(letters).reduce(
-            (sum, key) => sum + letters[key] * powderCost[key],
-            0
-        );
+        const required = {};
+        Object.keys(letters).forEach((k)=>{
+            required[k] = letters[k] * powderCost[k];
+        });
+        return [required.common + required.medium, required.rare];
     }
 
     // レア度に対応する色を取得
@@ -171,6 +171,7 @@ const AlphabetGameSimulator = () => {
         setAdvancedDrawCount(0);
         setSynthesisCount(0);
         setPowder(0);
+        setAdvancedPowder(0);
         setCurrentPlacement(targetWords.map(word => word.map(() => null)));
 
         // インベントリを初期化（全て0）
@@ -198,7 +199,7 @@ const AlphabetGameSimulator = () => {
         let tempSynthesisCount = 0;
 
         // クリアまでのパウダー必要数
-        let requiredPowder = calcRequiredPowder();
+        let [requiredPowder, requiredAdvancedPowder] = calcRequiredPowder();
 
         while (true) {
             tempDrawCount++;
@@ -232,7 +233,7 @@ const AlphabetGameSimulator = () => {
 
             // 配置
             doPlacement();
-            if (tempPowder >= requiredPowder) break;
+            if (tempPowder >= requiredPowder && tempAdvancedPowder >= requiredAdvancePowder) break;
             function doPlacement() {
                 const beforePlacement = JSON.stringify(tempPlacement);
                 for (let wordIndex = 0; wordIndex < targetWords.length; wordIndex++) {
@@ -249,7 +250,11 @@ const AlphabetGameSimulator = () => {
                             if (alphabets.rare.includes(targetLetter)) foo = "rare";
                             else if (alphabets.medium.includes(targetLetter)) foo = "medium";
                             else foo = "common";
-                            requiredPowder -= powderCost[foo];
+                            if (foo == "rare"){
+                                requiredAdvancedPowder -= powderCost[foo];
+                            } else {
+                              requiredPowder -= powderCost[foo];
+                            }
                         }
                     }
                 }
@@ -268,13 +273,14 @@ const AlphabetGameSimulator = () => {
                 //);
 
                 // パウダー必要数が所持数未満ならクリア
-                if (tempPowder >= requiredPowder) {
+                if (tempPowder >= requiredPowder && tempAdvancedPowder >= requiredAdvancePowder) {
                     log.push({
                         type: 'complete',
                         drawCount: tempDrawCount,
                         advancedDrawCount: tempAdvancedDrawCount,
                         synthesisCount: tempSynthesisCount,
-                        powder: tempPowder
+                        powder: tempPowder,
+                        advancedPowder: tempAdvancedPowder
                     });
                 }
             }
@@ -292,6 +298,7 @@ const AlphabetGameSimulator = () => {
 
                 // 合成実行
                 let powderGain = 0;
+                let advancedPowderGain = 0;
                 let itemsToRemove = 5;
                 const itemsUsed = [];
 
@@ -306,9 +313,9 @@ const AlphabetGameSimulator = () => {
                     while (tempInventory[letter] > 0 && itemsToRemove > 0) {
                         tempInventory[letter]--;
                         if (alphabets.rare.includes(letter)) {
-                            powderGain += 250;
+                            advancedPowderGain += 100;
                         } else if (alphabets.medium.includes(letter)) {
-                            powderGain += 75;
+                            powderGain += 150;
                         } else {
                             powderGain += 5;
                         }
@@ -321,6 +328,7 @@ const AlphabetGameSimulator = () => {
                 const synthesized = synthesize();
                 tempInventory[synthesized.alphabet] = (tempInventory[synthesized.alphabet] || 0) + 1;
                 tempPowder = tempPowder + powderGain;
+                tempAdvancedPowder = tempAdvancedPowder + advancedPowderGain;
 
                 log.push({
                     type: 'synthesis',
@@ -328,13 +336,15 @@ const AlphabetGameSimulator = () => {
                     itemsUsed,
                     synthesized: synthesized.alphabet,
                     powderGain,
+                    advancedPowderGain,
                     totalPowder: tempPowder,
+                    totalAdvancedPowder: tempAdvancedPowder,
                     inventory: { ...tempInventory }
                 });
 
                 // 新しく獲得したアルファベット・パウダーで配置・クリア判定
                 doPlacement();
-                if (tempPowder >= requiredPowder) break;
+                if (tempPowder >= requiredPowder && tempAdvancedPowder >= requiredAdvancePowder) break;
             }
         }
 
@@ -376,6 +386,7 @@ const AlphabetGameSimulator = () => {
                 case 'synthesis':
                     setSynthesisCount(logEntry.synthesisCount);
                     setPowder(logEntry.totalPowder);
+                    setAdvancedPowder(logEntry.totalAdvancedPowder);
                     setInventory(logEntry.inventory);
                     break;
                 case 'complete':
@@ -416,6 +427,7 @@ const AlphabetGameSimulator = () => {
         setAdvancedDrawCount(0);
         setSynthesisCount(0);
         setPowder(0);
+        setAdvancedPowder(0);
         setCurrentPlacement(targetWords.map(word => word.map(() => null)));
 
         // インベントリを初期化（全て0）
@@ -596,7 +608,7 @@ const AlphabetGameSimulator = () => {
                                         return ["上", "中", "下"][index] + (option ? "◯" : "✕");
                                     }).join(" ");
                                     const pageUrl = "https://roclaknn.github.io/Universe-PinkBean-Sim/".split('#')[0];
-                                    const tweetText = `通常箱 ${drawCount}個でクリアしました！\n上級箱: ${advancedDrawCount}個 [${advancedProbability} %]\n合成回数: ${synthesisCount}回 [${synthOptTxt}]\nパウダー: ${powder.toLocaleString()}\n対象単語: ${wordCount}\n#宇宙スターピンクビーンシミュレータ\n${pageUrl}`;
+                                    const tweetText = `通常箱 ${drawCount}個でクリアしました！\n上級箱: ${advancedDrawCount}個 [${advancedProbability} %]\n合成回数: ${synthesisCount}回 [${synthOptTxt}]\nパウダー: (通常)${powder.toLocaleString)} (上級)${advancedPowder.toLocaleString()}\n対象単語: ${wordCount}\n#宇宙スターピンクビーンシミュレータ\n${pageUrl}`;
                                     const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
                                     window.open(tweetUrl, '_blank');
                                 }}
@@ -612,7 +624,7 @@ const AlphabetGameSimulator = () => {
                         通常箱 {drawCount}個でクリアしました！
                     </p>
                     <p className="text-sm mt-2">
-                        上級箱: {advancedDrawCount}個 | 合成: {synthesisCount}回 | パウダー: {powder.toLocaleString()}
+                        上級箱: {advancedDrawCount}個 | 合成: {synthesisCount}回 | パウダー: (通常){powder.toLocaleString()} (上級){advancedPowder.toLocaleString()}
                     </p>
                 </div>
             )}
@@ -686,6 +698,7 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
 
 
 
