@@ -608,7 +608,7 @@ const AlphabetGameSimulator = () => {
                                         return ["上", "中", "下"][index] + (option ? "◯" : "✕");
                                     }).join(" ");
                                     const pageUrl = "https://roclaknn.github.io/Universe-PinkBean-Sim/".split('#')[0];
-                                    const tweetText = `通常箱 ${drawCount}個でクリアしました！\n上級箱: ${advancedDrawCount}個 [${advancedProbability} %]\n合成回数: ${synthesisCount}回 [${synthOptTxt}]\nパウダー: (通常)${powder.toLocaleString)} (上級)${advancedPowder.toLocaleString()}\n対象単語: ${wordCount}\n#宇宙スターピンクビーンシミュレータ\n${pageUrl}`;
+                                    const tweetText = `通常箱 ${drawCount}個でクリアしました！\n上級箱: ${advancedDrawCount}個 [${advancedProbability} %]\n合成回数: ${synthesisCount}回 [${synthOptTxt}]\nパウダー: (通常)${powder.toLocaleString()} (上級)${advancedPowder.toLocaleString()}\n対象単語: ${wordCount}\n#宇宙スターピンクビーンシミュレータ\n${pageUrl}`;
                                     const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
                                     window.open(tweetUrl, '_blank');
                                 }}
@@ -698,6 +698,7 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
 
 
 
