@@ -660,7 +660,7 @@ const AlphabetGameSimulator = () => {
                                 return splitnums.map( (num, sectionIndex) => {
                                     return (<div key={sectionIndex} className={`flex flex-nowrap justify-center gap-2`} >
                                     {(()=>{
-                                        const start = sectionIndex <= 0 ? 0 : splitnums[sectionIndex];
+                                        const start = sectionIndex <= 0 ? 0 : splitnums[sectionIndex-1];
                                         return word.slice(start, start + num).map( (letter, letterIndex)=>{
                                             const targetLetter = targetWords[wordIndex][letterIndex];
                                             return (
@@ -706,6 +706,7 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
 
 
 
