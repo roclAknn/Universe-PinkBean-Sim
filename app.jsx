@@ -550,7 +550,7 @@ const AlphabetGameSimulator = () => {
                                     disabled={gameState === 'running'}
                                     className="w-4 h-4"
                                 />
-                                <span className="text-sm">{wordName.replace("/\//", " ")}</span>
+                                <span className="text-sm">{wordName.replace(/\//g, " ")}</span>
                             </label>
                         ))}
                     </div>
@@ -685,3 +685,4 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
