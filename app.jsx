@@ -24,17 +24,17 @@ const AlphabetGameSimulator = () => {
     const alphabets = {
         rare: "CEKV", // レア度上
         medium: "AOPST", // レア度中
-        common: "", // レア度下(残りすべて)
+        common: "INR", // レア度下(使用されないものも後ろに並べる)
     };
     
     // レア度commonの定義
-    alphabets.common = (()=>{
-        const exclude = [...alphabets.rare, ...alphabets.medium];
+    alphabets.common += (()=>{
+        const exclude = alphabets.rare + alphabets.medium + alphabets.common;
         let code = "A".charCodeAt(0);
         let ret = "";
         for(let i = 0; i < 26; i++){
             const char = String.fromCharCode(code + i);
-            if ( !exclude.includes(char) ) ret += char;
+            if ( exclude.indexOf(char) < 0 ) ret += char;
         }
         return ret;
     })();
@@ -263,11 +263,6 @@ const AlphabetGameSimulator = () => {
                         inventory: { ...tempInventory }
                     });
                 }
-
-                // クリア判定
-                //const gameComplete = tempPlacement.every((word, index) =>
-                //    selectedWords[index] ? word.every(letter => letter !== null) : true
-                //);
 
                 // パウダー必要数が所持数未満ならクリア
                 if (tempPowder >= requiredPowder && tempAdvancedPowder >= requiredAdvancedPowder) {
@@ -710,6 +705,7 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
 
 
 
