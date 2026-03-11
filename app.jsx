@@ -605,7 +605,7 @@ const AlphabetGameSimulator = () => {
                                         return ["上", "中", "下"][index] + (option ? "◯" : "✕");
                                     }).join(" ");
                                     const pageUrl = "https://roclaknn.github.io/Universe-PinkBean-Sim/".split('#')[0];
-                                    const tweetText = `通常箱 ${drawCount}個でクリアしました！\n上級箱: ${advancedDrawCount}個 [${advancedProbability} %]\n合成回数: ${synthesisCount}回 [${synthOptTxt}]\nパウダー: (通常)${powder.toLocaleString()} (上級)${advancedPowder.toLocaleString()}\n対象単語: ${wordCount}\n#宇宙スターピンクビーンシミュレータ\n${pageUrl}`;
+                                    const tweetText = `通常箱 ${drawCount}個でクリアしました！\n上級箱: ${advancedDrawCount}個 [${advancedProbability} %]\n合成回数: ${synthesisCount}回 [${synthOptTxt}]\nパウダー: ${powder.toLocaleString()} |上級: ${advancedPowder.toLocaleString()}\n対象単語: ${wordCount}\n#ロックスター石の精霊\n${pageUrl}`;
                                     const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
                                     window.open(tweetUrl, '_blank');
                                 }}
@@ -621,7 +621,7 @@ const AlphabetGameSimulator = () => {
                         通常箱 {drawCount}個でクリアしました！
                     </p>
                     <p className="text-sm mt-2">
-                        上級箱: {advancedDrawCount}個 | 合成: {synthesisCount}回 | パウダー: (通常){powder.toLocaleString()} (上級){advancedPowder.toLocaleString()}
+                        上級箱: {advancedDrawCount}個 | 合成: {synthesisCount}回 | パウダー: {powder.toLocaleString()} | 上級パウダー: {advancedPowder.toLocaleString()}
                     </p>
                 </div>
             )}
@@ -629,19 +629,19 @@ const AlphabetGameSimulator = () => {
                 <h2 className="text-xl font-bold mb-4 text-purple-300">統計</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                     <div className="bg-purple-600/50 backdrop-blur-sm border border-purple-400/30 rounded p-3">
-                        <div className="text-2xl font-bold text-purple-200">{drawCount}</div>
+                        <div className="text-2xl font-bold text-purple-200">{drawCount.toLocaleString()}</div>
                         <div className="text-sm text-purple-300">通常箱</div>
                     </div>
                     <div className="bg-pink-600/50 backdrop-blur-sm border border-pink-400/30 rounded p-3">
-                        <div className="text-2xl font-bold text-pink-200">{advancedDrawCount}</div>
+                        <div className="text-2xl font-bold text-pink-200">{advancedDrawCount.toLocaleString()}</div>
                         <div className="text-sm text-pink-300">上級箱</div>
                     </div>
                     <div className="bg-yellow-600/50 backdrop-blur-sm border border-yellow-400/30 rounded p-3">
-                        <div className="text-2xl font-bold text-yellow-200">{synthesisCount}</div>
+                        <div className="text-2xl font-bold text-yellow-200">{synthesisCount.toLocaleString()}</div>
                         <div className="text-sm text-yellow-300">合成回数</div>
                     </div>
                     <div className="bg-indigo-600/50 backdrop-blur-sm border border-indigo-400/30 rounded p-3">
-                        <div className="text-2xl font-bold text-indigo-200">{powder.toLocaleString()}</div>
+                        <div className="text-2xl font-bold text-indigo-200">{powder.toLocaleString()}/{advancedPowder.toLocaleString()}</div>
                         <div className="text-sm text-indigo-300">パウダー</div>
                     </div>
                 </div>
@@ -695,6 +695,7 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
 
 
 
