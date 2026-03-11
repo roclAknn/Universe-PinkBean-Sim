@@ -234,7 +234,7 @@ const AlphabetGameSimulator = () => {
 
             // 配置
             doPlacement();
-            if (tempPowder >= requiredPowder && tempAdvancedPowder >= requiredAdvancePowder) break;
+            if (tempPowder >= requiredPowder && tempAdvancedPowder >= requiredAdvancedPowder) break;
             function doPlacement() {
                 const beforePlacement = JSON.stringify(tempPlacement);
                 for (let wordIndex = 0; wordIndex < targetWords.length; wordIndex++) {
@@ -274,7 +274,7 @@ const AlphabetGameSimulator = () => {
                 //);
 
                 // パウダー必要数が所持数未満ならクリア
-                if (tempPowder >= requiredPowder && tempAdvancedPowder >= requiredAdvancePowder) {
+                if (tempPowder >= requiredPowder && tempAdvancedPowder >= requiredAdvancedPowder) {
                     log.push({
                         type: 'complete',
                         drawCount: tempDrawCount,
@@ -345,7 +345,7 @@ const AlphabetGameSimulator = () => {
 
                 // 新しく獲得したアルファベット・パウダーで配置・クリア判定
                 doPlacement();
-                if (tempPowder >= requiredPowder && tempAdvancedPowder >= requiredAdvancePowder) break;
+                if (tempPowder >= requiredPowder && tempAdvancedPowder >= requiredAdvancedPowder) break;
             }
         }
 
@@ -699,6 +699,7 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
 
 
 
