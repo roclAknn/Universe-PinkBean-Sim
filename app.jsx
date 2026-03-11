@@ -662,6 +662,7 @@ const AlphabetGameSimulator = () => {
                                     {(()=>{
                                         const start = sectionIndex <= 0 ? 0 : splitnums[sectionIndex-1];
                                         return word.slice(start, num).map( (letter, letterIndex)=>{
+                                            letterIndex += num;
                                             const targetLetter = targetWords[wordIndex][letterIndex];
                                             return (
                                                 <div
@@ -706,6 +707,7 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
 
 
 
