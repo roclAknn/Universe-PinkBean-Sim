@@ -194,6 +194,7 @@ const AlphabetGameSimulator = () => {
         let tempInventory = { ...initialInventory };
         let tempPlacement = targetWords.map(word => word.map(() => null));
         let tempPowder = 0;
+        let tempAdvancedPowder = 0;
         let tempDrawCount = 0;
         let tempAdvancedDrawCount = 0;
         let tempSynthesisCount = 0;
@@ -698,6 +699,7 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
 
 
 
