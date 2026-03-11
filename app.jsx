@@ -654,14 +654,14 @@ const AlphabetGameSimulator = () => {
                     {currentPlacement.map((word, wordIndex) =>
                         selectedWords[wordIndex] && (
                             <div key={wordIndex} className={` mx-auto w-[calc(8*42px)] grid justify-center gap-2`}>
-                            {
+                            {(()=>{
                                 let _sum = 0;
                                 const splitnums = wordNames[wordIndex].replace(" ", "").split("/").map( w => (_sum += w.length) );
-                                splitnums.map( (num, sectionIndex) => {
+                                return splitnums.map( (num, sectionIndex) => {
                                     return (<div key={sectionIndex} className={`flex flex-nowrap justify-center gap-2`} >
-                                    {
+                                    {(()=>{
                                         const start = sectionIndex <= 0 ? 0 : splitnums[sectionIndex];
-                                        word.slice(start, start + num).map( (letter, letterIndex)=>{
+                                        return word.slice(start, start + num).map( (letter, letterIndex)=>{
                                             const targetLetter = targetWords[wordIndex][letterIndex];
                                             return (
                                                 <div
@@ -673,10 +673,11 @@ const AlphabetGameSimulator = () => {
                                                 >{letter || targetLetter}</div>
                                             );
                                         })
-                                    }
+                                    })()}
                                     </div>);
+                                        
                                 });
-                            }
+                            })()}
                             </div>
                         )
                     )}
@@ -705,6 +706,7 @@ const AlphabetGameSimulator = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(<AlphabetGameSimulator />);
+
 
 
 
