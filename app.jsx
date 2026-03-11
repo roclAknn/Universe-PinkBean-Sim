@@ -21,19 +21,36 @@ const AlphabetGameSimulator = () => {
 
     // アルファベット定義
     const alphabets = {
-        rare: ['K', 'P', 'T', 'U'], // レア度上
-        medium: ['A', 'I', 'N', 'S', 'V'], // レア度中
-        common: ['B', 'E', 'R', 'C', 'D', 'F', 'G', 'H', 'J', 'L', 'M', 'O', 'Q', 'W', 'X', 'Y', 'Z'] // レア度下
+        rare: "CEKV", // レア度上
+        medium: "AOPST", // レア度中
+        common: "", // レア度下(残りすべて)
     };
+    
+    // レア度commonの定義
+    alphabets.common = (()=>{
+        const exclude = [...alphabets.rare, ...alphabets.medium];
+        let code = "A".charCodeAt(0);
+        let ret = "";
+        for(let i = 0; i < 26; i++){
+            const char = String.fromCharCode(code + i);
+            if ( !exclude.includes(char) ) ret += char;
+        }
+        return ret;
+    })();
+    
+    // アルファベット文字列を配列に
+    Object.keys(alphabets).forEach(k => {
+        alphabets[k] = alphabets[k].split("");
+    });
 
     const wordNames = [
-        "STAR",
-        "UNIVERSE",
-        "PINKBEAN",
-        "UNIVERSESTAR",
-        "UNIVERSEPINKSTAR"
+        "SAVE",
+        "STONE",
+        "SPIRIT/SAVIOR",
+        "ROCK SPIRIT",
+        "SPIRIT/SAVIOR/ROCKSPIRIT"
     ];
-    const targetWords = wordNames.map(word => word.split(""));
+    const targetWords = wordNames.map(word => word.replace(/[^A-Z]/g, "").split(""));
 
     // アルファベット選択作成必要数
     const powderCost = { rare: 5000, medium: 1500, common: 100 };
@@ -533,7 +550,7 @@ const AlphabetGameSimulator = () => {
                                     disabled={gameState === 'running'}
                                     className="w-4 h-4"
                                 />
-                                <span className="text-sm">{wordName}</span>
+                                <span className="text-sm">{wordName.replace("/\//", " ")}</span>
                             </label>
                         ))}
                     </div>
@@ -666,4 +683,5 @@ const AlphabetGameSimulator = () => {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
 root.render(<AlphabetGameSimulator />);
